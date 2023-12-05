@@ -3,6 +3,7 @@
 
 #include "table_structs.hpp"
 #include <unordered_map>
+#include "Cell.hpp"
 
 typedef struct 
 {
@@ -31,6 +32,8 @@ class Parser{
   Tree_structs* get_atom();
 
   Tree_structs* calc_expr(int prec);
+
+  int parse(std::unordered_map<std::string,Cell*>& cell_map);
 
 };
 

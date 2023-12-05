@@ -53,3 +53,38 @@ Tree_structs* Parser::calc_expr(int prec){
   return left;
 }
 
+int Parser::parse(std::unordered_map<std::string,Cell*>& cell_map){
+  char row='a';
+  int col=1;
+  while(tokens[cur_token_pos]->type!=Token_types::END){
+    Token* cur_token=tokens[cur_token_pos];
+    std::string new_pos=std::string{row}+std::to_string(col);
+    if(cur_token->type==Token_types::EQUALS){
+      cur_token_pos++;
+      cell_map[new_pos]=new Cell(new_pos,calc_expr(1));
+    } else if((cur_token->type==Token_types::NUM) && 
+        (tokens[cur_token_pos+1]->type==Token_types::COMMA || tokens[cur_token_pos+1]->type==Token_types::NEW_LINE ||
+        tokens[cur_token_pos+1]->type==Token_types::END)){
+      cur_token_pos++;
+      cell_map[new_pos]=new Cell(new_pos,atoi(cur_token->val.c_str()));
+    } else {
+      std::string conncat;
+      while(cur_token->type==Token_types::STRING || cur_token->type==Token_types::NUM){
+        conncat=conncat+cur_token->val;
+        cur_token=tokens[++cur_token_pos];
+      }
+      cell_map[new_pos]=new Cell(new_pos,conncat);
+        
+    }
+    if(tokens[cur_token_pos]->type==Token_types::COMMA) col++;
+    else if (tokens[cur_token_pos]->type==Token_types::NEW_LINE){
+      row++;
+      col=1;
+    }
+    if(tokens[cur_token_pos]->type==Token_types::END) break;
+    cur_token_pos++;
+    
+  }
+  return 0;
+}
+
