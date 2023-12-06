@@ -53,7 +53,7 @@ Tree_structs* Parser::calc_expr(int prec){
   return left;
 }
 
-int Parser::parse(std::unordered_map<std::string,Cell*>& cell_map){
+std::unordered_map<std::string,Cell*>& Parser::parse(){
   char row='a';
   int col=1;
   while(tokens[cur_token_pos]->type!=Token_types::END){
@@ -85,6 +85,6 @@ int Parser::parse(std::unordered_map<std::string,Cell*>& cell_map){
     cur_token_pos++;
     
   }
-  return 0;
+  return cell_map;
 }
 

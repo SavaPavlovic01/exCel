@@ -4,7 +4,8 @@ src/csv_lexer.cpp \
 src/Token.cpp \
 src/csv_parser.cpp \
 src/table_structs.cpp \
-src/Cell.cpp
+src/Cell.cpp \
+src/table_struct_visitor.cpp
 
 h_files=$(addprefix inc/,$(notdir $(c_files:.cpp=.hpp)))
 

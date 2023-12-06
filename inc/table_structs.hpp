@@ -3,12 +3,13 @@
 
 #include "Token.hpp"
 #include <vector>
+#include "table_struct_visitor.hpp"
 
-
+class Tree_struct_visitor;
 class Tree_structs{
   public:
   
-  virtual int get_val()=0;
+  virtual int accept(Tree_struct_visitor*)=0;
 };
 
 enum class Operation{
@@ -27,7 +28,7 @@ class Binary_op:public Tree_structs{
     this->op=op;
   }
 
-  int get_val() override;
+  int accept(Tree_struct_visitor* visitor) override;
 };
 
 class Unary_op:public Tree_structs{
@@ -40,7 +41,7 @@ class Unary_op:public Tree_structs{
     this->arg=arg;
   }
 
-  int get_val() override;
+  int accept(Tree_struct_visitor* visitor) override;
 };
 
 class Func_op:public Tree_structs{
@@ -52,7 +53,8 @@ class Func_op:public Tree_structs{
 
   void add_arg(Tree_structs* arg){args.push_back(arg);}
 
-  int get_val() override;
+
+  int accept(Tree_struct_visitor* visitor) override;
 };
 
 class Num_node:public Tree_structs{
@@ -63,7 +65,7 @@ class Num_node:public Tree_structs{
     this->num=num;
   }
 
-  int get_val() override {return num;}
+  int accept(Tree_struct_visitor* visitor) override;
 };
 
 class Var_node:public Tree_structs{
@@ -74,7 +76,7 @@ class Var_node:public Tree_structs{
     this->var=var;
   }
 
-  int get_val() override;
+  int accept(Tree_struct_visitor* visitor) override;
 };
 
 #endif

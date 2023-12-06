@@ -16,6 +16,7 @@ class Parser{
   
   std::vector<Token*> tokens;
   unsigned int cur_token_pos=0;
+  std::unordered_map<std::string,Cell*> cell_map;
 
   public:
 
@@ -33,7 +34,7 @@ class Parser{
 
   Tree_structs* calc_expr(int prec);
 
-  int parse(std::unordered_map<std::string,Cell*>& cell_map);
+  std::unordered_map<std::string,Cell*>& parse();
 
 };
 

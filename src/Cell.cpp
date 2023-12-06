@@ -17,3 +17,15 @@ Cell::Cell(std::string pos,Tree_structs* root){
     this->position=pos;
     this->expr_val=root;
 }
+
+int Cell::get_val(Tree_struct_visitor* visitor){
+        if(type==Cell_type::NUM_CELL) return num_val;
+        if(type==Cell_type::EXPR_CELL){
+            if(!calced) {
+                calculated_val=expr_val->accept(visitor);
+                calced=true;
+            }
+            return calculated_val;
+        }
+        return -100;
+    }
