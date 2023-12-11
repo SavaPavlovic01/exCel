@@ -3,13 +3,21 @@
 
 #include "Token.hpp"
 #include <vector>
+#include <unordered_set>
 #include "table_struct_visitor.hpp"
 
 class Tree_struct_visitor;
 class Tree_structs{
+  protected:
+  std::unordered_set<std::string> dependecys;
   public:
   
   virtual int accept(Tree_struct_visitor*)=0;
+  std::unordered_set<std::string>& get_dependecys(){
+    return dependecys;
+  }
+
+  virtual void calc_depends()=0;
 };
 
 enum class Operation{
@@ -29,6 +37,18 @@ class Binary_op:public Tree_structs{
   }
 
   int accept(Tree_struct_visitor* visitor) override;
+
+  void calc_depends() override{
+    dependecys.clear();
+    left->calc_depends();
+    right->calc_depends();
+    for(auto str:left->get_dependecys()){
+      dependecys.insert(str);
+    }
+    for(auto str:right->get_dependecys()){
+      dependecys.insert(str);
+    }
+  }
 };
 
 class Unary_op:public Tree_structs{
@@ -42,6 +62,14 @@ class Unary_op:public Tree_structs{
   }
 
   int accept(Tree_struct_visitor* visitor) override;
+
+  void calc_depends() override{
+    dependecys.clear();
+    arg->calc_depends();
+    for(auto str:arg->get_dependecys()){
+      dependecys.insert(str);
+    }
+  }
 };
 
 class Func_op:public Tree_structs{
@@ -55,6 +83,16 @@ class Func_op:public Tree_structs{
 
 
   int accept(Tree_struct_visitor* visitor) override;
+
+  void calc_depends() override{
+    dependecys.clear();
+    for(auto arg:args){
+      arg->calc_depends();
+      for(auto str:arg->get_dependecys()){
+        dependecys.insert(str);
+      }
+    }
+  }
 };
 
 class Num_node:public Tree_structs{
@@ -66,6 +104,10 @@ class Num_node:public Tree_structs{
   }
 
   int accept(Tree_struct_visitor* visitor) override;
+
+  void calc_depends() override{
+    return;
+  }
 };
 
 class Var_node:public Tree_structs{
@@ -77,6 +119,11 @@ class Var_node:public Tree_structs{
   }
 
   int accept(Tree_struct_visitor* visitor) override;
+
+  void calc_depends() override {
+    dependecys.clear();
+    dependecys.insert(var);
+  }
 };
 
 #endif

@@ -2,6 +2,7 @@
 //#include <sys/wait.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <windows.h>
 
 int eval(){
   const char code[]="#include <stdlib.h>\n\
@@ -12,51 +13,45 @@ int eval(){
   }\
   int main(int argc,char** argv){\
   int val=test(strtol(argv[1],NULL,10),strtol(argv[2],NULL,10));\
-  FILE* file=fopen(\"/home/ss/Desktop/exCel/moj_kod.txt\",\"w\");\
-  fwrite(&val,4,1,file);\
-  fclose(file);\
-  exit(val);\
+  return val;\
   }";
 
-  FILE* file=fopen("moj_kod.c","w");
+  FILE* file=fopen("\\user_c_files\\moj_kod.c","w");
   fprintf(file,code);
   fclose(file);
   int child_pid,wpid;
   int status=0;
   
-  char* args[]={
-    "gcc",
-    "/home/ss/Desktop/exCel/moj_kod.c",
-    "-o",
-    "/home/ss/Desktop/exCel/moj_kod",
-    NULL
-  };
   
-  if((child_pid=fork())==0){
-      execv("/usr/bin/gcc",args);
-      exit(0);
+  STARTUPINFO info={sizeof(info)};
+  PROCESS_INFORMATION processInfo;
+  
+  if(CreateProcessA(
+    "gcc\\gcc-13.2.0-no-debug\\bin\\gcc.exe", "gcc ./user_c_files/moj_kod.c -o ./user_c_files/moj_kod.exe",NULL,NULL,TRUE,0,NULL,NULL,&info,&processInfo
+  )){
+    WaitForSingleObject(processInfo.hProcess, INFINITE);
+    CloseHandle(processInfo.hProcess);
+    CloseHandle(processInfo.hThread);
   }
-  while ((wpid = wait(&status)) > 0);
-  int ret;
-  if((child_pid=fork())==0){
-    char* args_test[]={
-      "moj_kod",
-      "12",
-      "3",
-      NULL
-    };
-    int i=execvp("./moj_kod",args_test);
-    exit(0);
+  PDWORD ret;
+  STARTUPINFO info1={sizeof(info)};
+  if(CreateProcessA(
+    "user_c_files\\moj_kod.exe", "moj_kod 5 3",NULL,NULL,TRUE,0,NULL,NULL,&info1,&processInfo
+  )){
+    WaitForSingleObject(processInfo.hProcess, INFINITE);
+    GetExitCodeProcess(processInfo.hProcess,ret);
+    CloseHandle(processInfo.hProcess);
+    CloseHandle(processInfo.hThread);
   }
+  
+  printf("%d",*ret);
+  printf("%d",GetLastError());
 
-  while ((wpid = wait(&status)) > 0);
-  int try_val=WEXITSTATUS(status);
-  FILE* pls_work=fopen("/home/ss/Desktop/exCel/moj_kod.txt","r");
-  int val;
-  fread(&val,4,1,file);
-  printf("%d\n",val);
-  printf("%d\n",try_val);
   
   return 0;
   
+}
+
+int main(){
+  return eval();
 }

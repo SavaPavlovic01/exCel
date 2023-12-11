@@ -4,16 +4,62 @@
 #include "../inc/csv_parser.hpp"
 #include "../inc/table_struct_visitor.hpp"
 
+enum class Color{
+  WHITE,GRAY,BLACK
+};
+
+bool check_cycle_dfs(std::unordered_map<std::string,std::unordered_set<std::string>*>& dep_map,std::unordered_map<std::string,Color>& visited,
+  const std::string& node){
+    std::unordered_set<std::string> *cur_set;
+    
+    if(dep_map.find(node)!=dep_map.end()){
+      cur_set=dep_map[node];
+    }else {
+      visited[node]=Color::BLACK;
+      return false;
+    }
+
+    visited[node]=Color::GRAY;
+    for(auto& it:*cur_set){
+      if(visited[it]==Color::GRAY) return true;
+      if(visited[it]==Color::BLACK) continue;
+      if(check_cycle_dfs(dep_map,visited,it)){
+        return true;
+      }
+    }
+    visited[node]=Color::BLACK;
+    return false;
+}
+
+bool check_cycle(std::unordered_map<std::string,std::unordered_set<std::string>*>& dep_map){
+  std::unordered_map<std::string,Color> visited;
+
+  for(auto& it:dep_map){
+    visited[it.first]=Color::WHITE;
+  }
+
+  for(auto& it:dep_map){
+    if(visited[it.first]==Color::WHITE){
+      if(check_cycle_dfs(dep_map,visited,it.first)){
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 int main(){
-  Lexer lex("test/test1.csv");
+  Lexer lex("test/test.csv");
   lex.get_tokens();
   //std::cout<<lex<<std::endl;
   Parser parser(lex.send_tokens());
   //Tree_structs* res=parser.calc_expr(1);
   //std::cout<<res->get_val()<<std::endl;
   std::unordered_map<std::string,Cell*> map;
+  std::unordered_map<std::string,std::unordered_set<std::string>*> dependecy_map;
   map=parser.parse();
   Visitor visitor(map);
+  
   for(auto& it:map){
     std::cout<<it.first<<" ";
     switch (it.second->type){
@@ -24,8 +70,35 @@ int main(){
         std::cout<<"NUM_CELL "<<it.second->get_val(&visitor)<<std::endl;
         break;
       case Cell_type::EXPR_CELL:
-        std::cout<<"EXPR_CELL "<<it.second->get_val(&visitor)<<std::endl;
+        
+        it.second->expr_val->calc_depends();
+        if(it.second->expr_val->get_dependecys().find(it.first)!=it.second->expr_val->get_dependecys().end()) {
+          std::cout<<"CIRCULAR DEPENDECY"<<std::endl;
+          break;
+        }
+        for(auto elem:it.second->expr_val->get_dependecys()){
+          auto itr=dependecy_map.find(elem);
+          if(itr==dependecy_map.end()){
+            auto new_set=new std::unordered_set<std::string>();
+            dependecy_map[elem]=new_set;
+            new_set->insert(it.second->position);
+          }else {
+            dependecy_map[elem]->insert(it.first);
+          }
+        }
+        //std::cout<<"EXPR_CELL "<<it.second->get_val(&visitor)<<std::endl;
         break;
+    }
+  }
+  if(check_cycle(dependecy_map)){
+    std::cout<<"CIRCULAR DEPENDECY"<<std::endl;
+    exit(-10);
+  }
+  
+  for (auto elem:dependecy_map){
+    std::cout<<elem.first<<std::endl;
+    for(auto inner_elem:*(elem.second)){
+      std::cout<<"\t"<<inner_elem<<std::endl;
     }
   }
   return 0;

@@ -35,4 +35,8 @@ class Visitor:public Tree_struct_visitor {
   int visit_var_node(Var_node*);
 };
 
+class Dependency_visitor:public Tree_struct_visitor{
+
+};
+
 #endif
