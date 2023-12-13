@@ -12,7 +12,7 @@ class Tree_structs{
   std::unordered_set<std::string> dependecys;
   public:
   
-  virtual int accept(Tree_struct_visitor*)=0;
+  virtual int accept(Tree_struct_visitor*,int& error_code)=0;
   std::unordered_set<std::string>& get_dependecys(){
     return dependecys;
   }
@@ -36,7 +36,7 @@ class Binary_op:public Tree_structs{
     this->op=op;
   }
 
-  int accept(Tree_struct_visitor* visitor) override;
+  int accept(Tree_struct_visitor* visitor,int& error_code) override;
 
   void calc_depends() override{
     dependecys.clear();
@@ -61,7 +61,7 @@ class Unary_op:public Tree_structs{
     this->arg=arg;
   }
 
-  int accept(Tree_struct_visitor* visitor) override;
+  int accept(Tree_struct_visitor* visitor,int& error_code) override;
 
   void calc_depends() override{
     dependecys.clear();
@@ -82,7 +82,7 @@ class Func_op:public Tree_structs{
   void add_arg(Tree_structs* arg){args.push_back(arg);}
 
 
-  int accept(Tree_struct_visitor* visitor) override;
+  int accept(Tree_struct_visitor* visitor,int& error_code) override;
 
   void calc_depends() override{
     dependecys.clear();
@@ -103,7 +103,7 @@ class Num_node:public Tree_structs{
     this->num=num;
   }
 
-  int accept(Tree_struct_visitor* visitor) override;
+  int accept(Tree_struct_visitor* visitor,int& error_code) override;
 
   void calc_depends() override{
     return;
@@ -118,7 +118,7 @@ class Var_node:public Tree_structs{
     this->var=var;
   }
 
-  int accept(Tree_struct_visitor* visitor) override;
+  int accept(Tree_struct_visitor* visitor,int& error_code) override;
 
   void calc_depends() override {
     dependecys.clear();

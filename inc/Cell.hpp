@@ -21,12 +21,15 @@ class Cell{
     int num_val;
     Tree_structs* expr_val;
     Cell_type type;
+    std::string content=std::string("");
 
     Cell(std::string pos,std::string str);
     Cell(std::string pos,int val);
     Cell(std::string pos,Tree_structs* root);
 
-    int get_val(Tree_struct_visitor* visitor);
+    int get_val(Tree_struct_visitor* visitor,int& error_code);
+
+    bool is_calced(){return calced;}
 };
 
 #endif

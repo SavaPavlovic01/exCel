@@ -18,12 +18,12 @@ Cell::Cell(std::string pos,Tree_structs* root){
     this->expr_val=root;
 }
 
-int Cell::get_val(Tree_struct_visitor* visitor){
+int Cell::get_val(Tree_struct_visitor* visitor,int& error_code){
         if(type==Cell_type::NUM_CELL) return num_val;
         if(type==Cell_type::EXPR_CELL){
             if(!calced) {
-                calculated_val=expr_val->accept(visitor);
-                calced=true;
+                calculated_val=expr_val->accept(visitor,error_code);
+                if(error_code!=-1)calced=true;
             }
             return calculated_val;
         }

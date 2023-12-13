@@ -49,7 +49,7 @@ bool check_cycle(std::unordered_map<std::string,std::unordered_set<std::string>*
 }
 
 int main(){
-  Lexer lex("test/test.csv");
+  Lexer lex("test/test1.csv");
   lex.get_tokens();
   //std::cout<<lex<<std::endl;
   Parser parser(lex.send_tokens());
@@ -59,23 +59,23 @@ int main(){
   std::unordered_map<std::string,std::unordered_set<std::string>*> dependecy_map;
   map=parser.parse();
   Visitor visitor(map);
-  
+  std::vector<Cell*> uncalculated_cells;
+  int error_code=0;
   for(auto& it:map){
-    std::cout<<it.first<<" ";
+    
     switch (it.second->type){
       case Cell_type::STRING_CELL:
+        std::cout<<it.first<<" ";
         std::cout<<"STRING_CELL "<<it.second->str_val<<std::endl;
         break;
       case Cell_type::NUM_CELL:
-        std::cout<<"NUM_CELL "<<it.second->get_val(&visitor)<<std::endl;
+        
+        std::cout<<it.first<<" ";
+        std::cout<<"NUM_CELL "<<it.second->get_val(&visitor,error_code)<<std::endl;
         break;
       case Cell_type::EXPR_CELL:
-        
         it.second->expr_val->calc_depends();
-        if(it.second->expr_val->get_dependecys().find(it.first)!=it.second->expr_val->get_dependecys().end()) {
-          std::cout<<"CIRCULAR DEPENDECY"<<std::endl;
-          break;
-        }
+        
         for(auto elem:it.second->expr_val->get_dependecys()){
           auto itr=dependecy_map.find(elem);
           if(itr==dependecy_map.end()){
@@ -86,7 +86,11 @@ int main(){
             dependecy_map[elem]->insert(it.first);
           }
         }
-        //std::cout<<"EXPR_CELL "<<it.second->get_val(&visitor)<<std::endl;
+        //it.second->get_val(&visitor,error_code);
+        //if(error_code==-1) uncalculated_cells.push_back(it.second);
+        //else std::cout<<it.first<<" "<<it.second->get_val(&visitor,error_code)<<std::endl;
+        uncalculated_cells.push_back(it.second);
+        error_code=0;
         break;
     }
   }
@@ -94,12 +98,24 @@ int main(){
     std::cout<<"CIRCULAR DEPENDECY"<<std::endl;
     exit(-10);
   }
-  
-  for (auto elem:dependecy_map){
-    std::cout<<elem.first<<std::endl;
-    for(auto inner_elem:*(elem.second)){
-      std::cout<<"\t"<<inner_elem<<std::endl;
+  bool has_changed=true;
+  int to_calc=uncalculated_cells.size();
+  while(has_changed && to_calc>0){
+    has_changed=false;
+    for(auto i=uncalculated_cells.begin();i!=uncalculated_cells.end();i++){
+      int error=0;
+      Cell* cur_cell=*i.base();
+      if(cur_cell->is_calced()) continue;
+      cur_cell->get_val(&visitor,error);
+      if(error==-1) continue;
+      else {
+        std::cout<<cur_cell->position<<" "<<cur_cell->get_val(&visitor,error)<<std::endl;
+        to_calc--;
+        has_changed=true;
+      }
+      error=0;
     }
   }
+  
   return 0;
 }

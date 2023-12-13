@@ -13,11 +13,11 @@ class Var_node;
 class Cell;
 class Tree_struct_visitor {
   public:
-  virtual int visit_binary_op(Binary_op*)=0;
-  virtual int visit_unary(Unary_op*)=0;
-  virtual int visit_func_op(Func_op*)=0;
-  virtual int visit_num_node(Num_node*)=0;
-  virtual int visit_var_node(Var_node*)=0;
+  virtual int visit_binary_op(Binary_op*,int& error_code)=0;
+  virtual int visit_unary(Unary_op*,int& error_code)=0;
+  virtual int visit_func_op(Func_op*,int& error_code)=0;
+  virtual int visit_num_node(Num_node*,int& error_code)=0;
+  virtual int visit_var_node(Var_node*,int& error_code)=0;
 };
 
 class Visitor:public Tree_struct_visitor {
@@ -28,11 +28,11 @@ class Visitor:public Tree_struct_visitor {
     cell_map=map;
   }
 
-  int visit_binary_op(Binary_op*);
-  int visit_unary(Unary_op*);
-  int visit_func_op(Func_op*);
-  int visit_num_node(Num_node*);
-  int visit_var_node(Var_node*);
+  int visit_binary_op(Binary_op*,int& error_code);
+  int visit_unary(Unary_op*,int& error_code);
+  int visit_func_op(Func_op*,int& error_code);
+  int visit_num_node(Num_node*,int& error_code);
+  int visit_var_node(Var_node*,int& error_code);
 };
 
 class Dependency_visitor:public Tree_struct_visitor{
