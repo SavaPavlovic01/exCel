@@ -33,6 +33,8 @@ class Lexer{
 
   Lexer(const char* path){open_file(path);}  
 
+  Lexer(const std::string content){stream=content;}
+
   friend std::ostream& operator<<(std::ostream& stream,const Lexer& lexer){
     for(auto i:lexer.tokens){
       stream<<*i;

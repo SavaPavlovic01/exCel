@@ -13,11 +13,19 @@ class Window{
 
     bool init();
 
+    typedef struct {
+        SDL_Texture* texture;
+        bool valid;
+    } Texture;
+
+    std::unordered_map<std::string,Texture*> texture_map;
+
     const int width=1000;
     const int height=600;
     const char* title="Excel";
     const int cell_width=200;
     const int cell_height=50;
+    const int letter_width=20;
     bool quit=false;
     char first=-1;
     int second=-1;
@@ -58,6 +66,12 @@ class Window{
     void render_text(std::string text_to_render,int x,int y);
 
     ~Window();
+
+    void make_text_texture(std::string text_to_render,int x,int y);
+
+    void handle_mouse();
+
+    void handle_keyboard(SDL_Event& event);
 };
 
 #endif
