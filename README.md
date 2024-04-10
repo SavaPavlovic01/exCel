@@ -7,5 +7,5 @@ An excel like program made using C++
 * Makefile
 
 # Makefile commands
-make all
-make clean
+* make all
+* make clean
